@@ -1,4 +1,4 @@
-// v1.0.0 stable · build no.105
+// v1.0.0 stable · build no.106
 /* ════════════════════════════════════════════════════════════════════
    casa-luna.js — Casa Luna Edition · by The Khan
    Custom element: <casa-luna>  (renamed from khan-skycard to avoid
