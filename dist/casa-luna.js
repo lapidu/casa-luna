@@ -1887,6 +1887,8 @@ class CasaLuna extends HTMLElement {
         <span class="val" id="invState" data-entity="${c.inverter_state || ''}" style="font-size:${Number(c.sz_invstate) || 13}px;font-weight:650;color:#39d353;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">--</span>
       </div>
     </div>`;
+    /* hide a block but keep its DOM so live updates never hit missing elements */
+    const wrapH = (h) => c._show_lower_area === false ? `<div style="display:none">${h}</div>` : h;
     const [cx0, cy0, cw0, ch0] = SL.r_cyl;
     const cylinder = `
     <div class="box" style="left:${cx0}px;top:${cy0}px;width:${cw0}px;height:${ch0}px;overflow:hidden;${c._show_battery_cyl === false ? 'display:none' : ''}">
@@ -2188,9 +2190,9 @@ class CasaLuna extends HTMLElement {
           ${header}${arc}${c._show_nav === false ? '' : navToggle + nav}
           ${c._show_bars ? barHtml('pv', SL.pv, 'PV', '#43ea13', 10) + barHtml('pwr', SL.pwr, 'PWR', '#0a8aea', 10) : ''}
           ${evBanner}
-          ${statCont}${stats}${lower}${invTiles}
+          ${wrapH(statCont)}${wrapH(stats)}${wrapH(lower)}${invTiles}
           ${mode}${cylinder}${battStats}${pvTileBox}${prod}${cons}${events}
-          ${bottom}${detail}
+          ${wrapH(bottom)}${detail}
           ${flowOverlay}
         </div>
       </div>`;
@@ -5225,7 +5227,8 @@ class CasaLunaEditor extends HTMLElement {
       switchRow('_show_nav', '🧭 Navigation rail', 'Show the left navigation buttons (Dashboard, Energy, …)', true),
       switchRow('_show_battery_cyl', '🔋 Battery cylinder', 'Show the battery cylinder and its flow lines', true),
       switchRow('_show_battstats', '🔋 Battery value tile', 'Show battery stats (flip → 6 PV strings)', true),
-      switchRow('_show_totals', '📊 Totals row', 'Show the LAST / NETZBEZUG / EINSPEISUNG / CHG-DIS tiles', true),
+      switchRow('_show_lower_area', '⬜ Stats & bottom area', 'The framed area: LAST / NETZBEZUG / EINSPEISUNG / CHG-DIS, GOODWE box and the 6 bottom tiles', true),
+      switchRow('_show_totals', '📊 TOTAL IMP / EXP / PV', 'Show the TOTAL IMP / EXP / PV tiles', true),
       switchRow('_show_pvtile', '☀️ PV PWR/VOLT tile', 'Show the small PV power/voltage tile next to the battery', true),
       switchRow('_show_pv_extra', '☀️ Extra PV strings', 'Enable PV3–PV6', false),
       switchRow('_show_ev', '🚗 EV / car charger tile', 'Show the EV charger tile', false),
