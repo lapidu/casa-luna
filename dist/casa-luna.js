@@ -1755,7 +1755,7 @@ class CasaLuna extends HTMLElement {
       { id:'itPv',  tsKey:'pv',  label: c.label_total_pv  || this._t('TOTAL PV'),  ik:'sun',   col:'#ffd24a' },
     ];
     /* label / icon / value — three rows, vertically equal-spaced; bigger icon */
-    const invTiles = invTileDefs.map((td, k) => {
+    const invTiles = c._show_totals === false ? '' : invTileDefs.map((td, k) => {
       const x = SL.invt.xs[k], { y, w, h } = SL.invt;
       const iconSz = 43;
       /* equal thirds: row centres at h*1/6, h*3/6, h*5/6 */
@@ -1889,7 +1889,7 @@ class CasaLuna extends HTMLElement {
     </div>`;
     const [cx0, cy0, cw0, ch0] = SL.r_cyl;
     const cylinder = `
-    <div class="box" style="left:${cx0}px;top:${cy0}px;width:${cw0}px;height:${ch0}px;overflow:hidden">
+    <div class="box" style="left:${cx0}px;top:${cy0}px;width:${cw0}px;height:${ch0}px;overflow:hidden;${c._show_battery_cyl === false ? 'display:none' : ''}">
       <svg viewBox="34 118 100 168" width="${cw0}" height="${ch0}" preserveAspectRatio="xMidYMid meet" style="display:block;position:absolute;inset:0">
         <defs>
           <linearGradient id="battCapGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#050505"/><stop offset="15%" stop-color="#2a2a2c"/><stop offset="30%" stop-color="#6b6d73"/><stop offset="42%" stop-color="#d4d6db"/><stop offset="48%" stop-color="#ffffff"/><stop offset="54%" stop-color="#d4d6db"/><stop offset="70%" stop-color="#404247"/><stop offset="88%" stop-color="#0f0f12"/><stop offset="100%" stop-color="#000000"/></linearGradient>
@@ -2185,7 +2185,7 @@ class CasaLuna extends HTMLElement {
           <svg id="wxStars" xmlns="http://www.w3.org/2000/svg" style="opacity:0"></svg>
           <div id="wxLayer"></div>
           ${(() => { const dimOp = Number(c.edge_dim_opacity); return Number.isFinite(dimOp) && dimOp > 0 ? `<div class="dim" style="opacity:${Math.min(100, dimOp) / 100}"></div>` : ''; })()}
-          ${header}${arc}${navToggle}${nav}
+          ${header}${arc}${c._show_nav === false ? '' : navToggle + nav}
           ${c._show_bars ? barHtml('pv', SL.pv, 'PV', '#43ea13', 10) + barHtml('pwr', SL.pwr, 'PWR', '#0a8aea', 10) : ''}
           ${evBanner}
           ${statCont}${stats}${lower}${invTiles}
@@ -2213,6 +2213,12 @@ class CasaLuna extends HTMLElement {
       scaler.style.transform = `scale(${s})`;
     });
     this._ro.observe(stage);
+
+    /* battery hidden → also hide its flow lines and arrows (elements stay in DOM so updates don't break) */
+    if (c._show_battery_cyl === false) {
+      ['battVolt','battArrD','battArrA','battHGlow','battHCore','battVGlow','battVCore','battDGlow','battDCore']
+        .forEach(id => { const el = this.shadowRoot.getElementById(id); if (el) el.style.display = 'none'; });
+    }
 
     /* interactions */
     this._bindEvents();
@@ -5216,7 +5222,10 @@ class CasaLunaEditor extends HTMLElement {
       info('Enable or disable cards. Disabled cards are hidden from the dashboard.'),
       switchRow('_show_bars', '📊 PV / PWR bars', 'Both bottom capsule bars', true),
       switchRow('_show_phase', '🔀 Phase / Inverter tile', 'Show the 3-phase + inverter tile (with flip)', true),
+      switchRow('_show_nav', '🧭 Navigation rail', 'Show the left navigation buttons (Dashboard, Energy, …)', true),
+      switchRow('_show_battery_cyl', '🔋 Battery cylinder', 'Show the battery cylinder and its flow lines', true),
       switchRow('_show_battstats', '🔋 Battery value tile', 'Show battery stats (flip → 6 PV strings)', true),
+      switchRow('_show_totals', '📊 Totals row', 'Show the LAST / NETZBEZUG / EINSPEISUNG / CHG-DIS tiles', true),
       switchRow('_show_pvtile', '☀️ PV PWR/VOLT tile', 'Show the small PV power/voltage tile next to the battery', true),
       switchRow('_show_pv_extra', '☀️ Extra PV strings', 'Enable PV3–PV6', false),
       switchRow('_show_ev', '🚗 EV / car charger tile', 'Show the EV charger tile', false),
